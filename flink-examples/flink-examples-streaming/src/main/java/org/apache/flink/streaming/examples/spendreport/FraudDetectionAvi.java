@@ -6,6 +6,7 @@ import org.apache.flink.walkthrough.common.entity.Alert;
 import org.apache.flink.walkthrough.common.entity.Transaction;
 import org.apache.flink.walkthrough.common.sink.AlertSink;
 import org.apache.flink.walkthrough.common.source.TransactionSource;
+import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
 
 /**
  * Normal hoes.
@@ -18,6 +19,9 @@ public class FraudDetectionAvi {
 		DataStream<Transaction> transactions = env
 			.addSource(new TransactionSource())
 			.name("transactions");
+
+		env.enableCheckpointing(60000);
+		env.setStateBackend(new RocksDBStateBackend("file:///home/avsrivas/dev/flink/checkpoints", true));
 
 		DataStream<Alert> alerts = transactions
 			.keyBy(Transaction::getAccountId)
