@@ -26,11 +26,12 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.runtime.state.RegisteredKeyValueStateBackendMetaInfo;
 import org.apache.flink.runtime.state.internal.InternalValueState;
 import org.apache.flink.util.FlinkRuntimeException;
-
 import org.rocksdb.ColumnFamilyHandle;
 import org.rocksdb.RocksDBException;
+import java.time.LocalDateTime;
 
 import java.io.IOException;
+import java.time.temporal.ChronoUnit;
 
 /**
  * {@link ValueState} implementation that stores state in RocksDB.
@@ -101,9 +102,21 @@ class RocksDBValueState<K, N, V>
 		}
 
 		try {
+			LocalDateTime fromDateTime = LocalDateTime.now();
 			backend.db.put(columnFamily, writeOptions,
 				serializeCurrentKeyWithGroupAndNamespace(),
 				serializeValue(value));
+			LocalDateTime toDateTime = LocalDateTime.now();
+			LocalDateTime tempDateTime = LocalDateTime.from( fromDateTime );
+			long hours = tempDateTime.until( toDateTime, ChronoUnit.HOURS );
+			tempDateTime = tempDateTime.plusHours( hours );
+			long minutes = tempDateTime.until( toDateTime, ChronoUnit.MINUTES );
+			tempDateTime = tempDateTime.plusMinutes( minutes );
+			long seconds = tempDateTime.until( toDateTime, ChronoUnit.SECONDS );
+			tempDateTime = tempDateTime.plusSeconds( seconds );
+			long nanos = tempDateTime.until(toDateTime, ChronoUnit.NANOS);
+			System.out.println(minutes + " minutes " + seconds + " seconds " + nanos + " nanosecs.");
+
 		} catch (Exception e) {
 			throw new FlinkRuntimeException("Error while adding data to RocksDB", e);
 		}
