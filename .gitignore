@@ -1,7 +1,6 @@
 .cache
 scalastyle-output.xml
 .classpath
-.idea
 .metadata
 .settings
 .project
@@ -54,3 +53,4 @@ tools/flink
 tools/flink-*
 tools/releasing/release
 tools/japicmp-output
+checkpoints

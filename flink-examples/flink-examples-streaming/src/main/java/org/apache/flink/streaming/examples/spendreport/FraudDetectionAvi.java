@@ -20,7 +20,7 @@ public class FraudDetectionAvi {
 			.addSource(new TransactionSource())
 			.name("transactions");
 
-		env.enableCheckpointing(300000);
+//		env.enableCheckpointing(300000);
 		env.setStateBackend(new RocksDBStateBackend("file:///home/avsrivas/dev/flink/checkpoints", true));
 
 		DataStream<Alert> alerts = transactions
