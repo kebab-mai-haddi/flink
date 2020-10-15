@@ -20,7 +20,7 @@ public class FraudDetectorAvi extends KeyedProcessFunction<Long, Transaction, Al
 	private static final double LARGE_AMOUNT = 500.00;
 	private static final long ONE_MINUTE = 60 * 1000;
 
-	private transient ValueState<Boolean> flagState;
+	private transient ValueState<Boolean> flagState; // both are stored in rocksdb, this and the foll
 	private transient ValueState<Long> timerState;
 
 	@Override
@@ -43,7 +43,7 @@ public class FraudDetectorAvi extends KeyedProcessFunction<Long, Transaction, Al
 		Collector<Alert> collector) throws Exception {
 
 		// Get the current state for the current key
-		Boolean lastTransactionWasSmall = flagState.value();
+		Boolean lastTransactionWasSmall = flagState.value(); // this performs thee read to db
 
 		// Check if the flag is set
 		if (lastTransactionWasSmall != null) {
@@ -60,7 +60,7 @@ public class FraudDetectorAvi extends KeyedProcessFunction<Long, Transaction, Al
 
 		if (transaction.getAmount() < SMALL_AMOUNT) {
 			// set the flag to true
-			flagState.update(true);
+			flagState.update(true); // this also performs on the rocksdb
 
 			long timer = context.timerService().currentProcessingTime() + ONE_MINUTE;
 			context.timerService().registerProcessingTimeTimer(timer);
